@@ -1,53 +1,57 @@
-import ContactForm from "./components/ContactForm/ContactForm";
-import SearchBox from "./components/SearchBox/SearchBox";
-import ContactList from "./components/ContactList/ContactList";
-import ContactsData from "./contactsData.json";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import css from "./App.module.css";
+import ContactForm from "./components/ContactForm/ContactForm";
+import ContactList from "./components/ContactList/ContactList";
+import SearchBox from "./components/SearchBox/SearchBox";
 
-export default function App() {
-  const [contactsData, setContactsData] = useState(() => {
-    const savedContacts = localStorage.getItem("contactsData");
-    return savedContacts ? JSON.parse(savedContacts) : ContactsData;
+function App() {
+  const [contacts, setContacts] = useState(() => {
+    const savedContacts = window.localStorage.getItem("saved-contacts");
+    if (savedContacts !== null) {
+      return JSON.parse(savedContacts);
+    }
+    return [
+      { id: "id-1", name: "Rosie Simpson", number: "459-12-56" },
+      { id: "id-2", name: "Hermione Kline", number: "443-89-12" },
+      { id: "id-3", name: "Eden Clements", number: "645-17-79" },
+      { id: "id-4", name: "Annie Copeland", number: "227-91-26" },
+    ];
   });
+  const [query, setQuery] = useState("");
 
-  const [searchFilter, setSearchFilter] = useState("");
-
-  useEffect(() => {
-    const storedContacts = localStorage.getItem("contactsData");
-    if (storedContacts) {
-      setContactsData(JSON.parse(storedContacts));
-    }
-  }, []);
-
-  useEffect(() => {
-    if (contactsData !== null) {
-      localStorage.setItem("contactsData", JSON.stringify(contactsData));
-    }
-  }, [contactsData]);
-
-  const addContact = (newContact) => {
-    setContactsData((prevContacts) => {
-      return [...prevContacts, newContact];
+  const handleAddContact = (contact) => {
+    setContacts((prev) => {
+      return [...prev, contact];
     });
   };
 
-  const visibleContacts = contactsData.filter((contactData) =>
-    contactData.name.toLowerCase().includes(searchFilter.toLowerCase())
+  const handleRemoveContact = (contactId) => {
+    setContacts((prev) => {
+      return prev.filter((contact) => contact.id !== contactId);
+    });
+  };
+
+  const filteredContacts = contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(query.toLowerCase())
   );
 
-  const deleteContact = (contactId) => {
-    setContactsData((prevContacts) => {
-      return prevContacts.filter((prevContact) => prevContact.id !== contactId);
-    });
-  };
+  useEffect(() => {
+    window.localStorage.setItem("saved-contacts", JSON.stringify(contacts));
+  }, [contacts]);
 
   return (
-    <div>
-      <h1 className={css.phonebookTitle}>Phonebook</h1>
-      <ContactForm onAdd={addContact} />
-      <SearchBox value={searchFilter} onSearch={setSearchFilter} />
-      <ContactList contactsData={visibleContacts} onDelete={deleteContact} />
+    <div className={css.app}>
+      <h1>Phonebook</h1>
+      <ContactForm handleAddContact={handleAddContact} />
+      <SearchBox query={query} setQuery={setQuery} />
+      {filteredContacts.length > 0 && (
+        <ContactList
+          list={filteredContacts}
+          handleRemoveContact={handleRemoveContact}
+        />
+      )}
     </div>
   );
 }
+
+export default App;

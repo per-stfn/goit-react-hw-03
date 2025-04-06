@@ -1,28 +1,28 @@
-import { FaUserAlt } from "react-icons/fa";
-import { IoCall } from "react-icons/io5";
 import css from "./Contact.module.css";
+import { FaUser } from "react-icons/fa6";
+import { FaPhone } from "react-icons/fa6";
 
-export default function Contact({
-  contactData: { name, number, id },
-  onDelete,
-}) {
+const Contact = ({ contact, handleRemoveContact }) => {
   return (
-    <>
-      <div className={css.paragraphsWrapper}>
-        <p className={css.contactParagraph}>
-          <FaUserAlt className={css.contactIcon} size="20" />
-          {name}
+    <div className={css.contact}>
+      <div className={css.text}>
+        <p>
+          <FaUser className={css.icon} />
+          {contact.name}
         </p>
-        <p className={css.contactParagraph}>
-          <IoCall className={css.contactIcon} size="20" />
-          {number}
+        <p>
+          <FaPhone className={css.icon} />
+          {contact.number}
         </p>
       </div>
-      <div className={css.buttonWrapper}>
-        <button className={css.deleteBtn} onClick={() => onDelete(id)}>
-          Delete
-        </button>
-      </div>
-    </>
+      <button
+        type="button"
+        className={css.button}
+        onClick={() => handleRemoveContact(contact.id)}
+      >
+        Delete
+      </button>
+    </div>
   );
-}
+};
+export default Contact;
